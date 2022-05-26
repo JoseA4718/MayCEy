@@ -55,6 +55,8 @@ determinante([cual|S], S).
 
 nombre([maycey|S],S).
 nombre([tec-airlines|S],S).
+nombre([Tec-Airlines|S],S).
+nombre([ACE|S],S).
 nombre([ace|S],S).
 nombre([alfa|S],S).
 nombre([bravo|S],S).
