@@ -212,7 +212,7 @@ verbo(['salgo'|S],S).
 verbo(['sale'|S],S).
 verbo(['quiero'|S],S).
 verbo(['deseo'|S],S).
-verbo(['gusto'|S],S).
+verbo(['necesito'|S],S).
 
 %Infinitivo
 

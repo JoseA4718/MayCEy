@@ -48,7 +48,7 @@ revisarSaludo([],Entrada):-
 % mensaje inicial-----------------------------------
 
 revisarEmergencia(Lista, Entrada):-
-    emergencia(Entrada),!.
+    emergencias(Entrada),!.
 revisarEmergencia([],''):-
     write('No he entendido el mensaje, intentelo de nuevo'),
     nl,
@@ -75,10 +75,10 @@ revisarSolicitud(X):-
 
 revisarAterrizaje(Lista, Entrada):-
     aterrizar(Entrada),!.
-revisarAterrizaje(Listas,Entrada):-
+revisarAterrizaje(Lista,Entrada):-
     eliminar(Entrada,Lista,NuevaLista),
     pe(NuevaLista,Z),
-    revisarAterrizaje(NuevaLsita, Z).
+    revisarAterrizaje(NuevaLista, Z).
 revisarAterrizaje([],Entrada):-
     write('La solicitud es incorrecta, intentelo de nuevo'),
     nl,

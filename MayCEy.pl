@@ -75,10 +75,10 @@ revisarSolicitud(X):-
 
 revisarAterrizaje(Lista, Entrada):-
     aterrizar(Entrada),!.
-revisarAterrizaje(Listas,Entrada):-
+revisarAterrizaje(Lista,Entrada):-
     eliminar(Entrada,Lista,NuevaLista),
     pe(NuevaLista,Z),
-    revisarAterrizaje(NuevaLsita, Z).
+    revisarAterrizaje(NuevaLista, Z).
 revisarAterrizaje([],Entrada):-
     write('La solicitud es incorrecta, intentelo de nuevo'),
     nl,
@@ -114,7 +114,7 @@ tipoEmergencia([],''):-
     nl,
     segundoValorEmergencia(X),!.
 tipoEmergencia(Lista, Entrada):-
-    eliminar(Entrada,Lista,NuevaList),
+    eliminar(Entrada,Lista,NuevaLista),
     primerElemento(NuevaLista,Z),
     tipoEmergencia(NuevaLista,Z).
 
