@@ -6,19 +6,245 @@
 %Hecho inicial para primer elemento.
 pe([X|_],X).
 
-despedidaCambioYFuera(['Cambio y fuera','cambio y fuera']).
+%Regla que devuelve el primer elemento
+primerElemento([X|_],X).
+primerElemento([],X):-
+    X=''.
 
-emergencias(['Mayday','mayday','7500']).
+%Regla para eliminar un elemento de la lista.
+eliminar(_,[],[]).
+eliminar(Y, [Y|Xs],Zs):-
+    eliminar(Y,Xs,Zs),!.
+eliminar(X,[Y|Xs],[Y|Zs]):-
+    eliminar(X,Xs,Zs).
 
-avionesPequenos(['Cessna','Beechcraft','Embraer Phenom']).
-avionesMedianos(['Boing 717','Embraer 190','Airbus A220']).
-avionesGrandes(['Boing 747','Airbus A340','Airbus A380']).
+% --------------------Revisiones de entrada del usuario------------------
 
-solicitudEmergencias([['Perdida de motor', 'Los bomberos iran en camino'],
-      ['Parto en Medio Vuelo', 'El medico va en camino'],
-      ['Paro Cardiaco de Pasajero', 'El medico de primeros auxilios va en camino'],
-      ['Secuestro', 'Fuerza publica y el OIJ acudiran a la pista apenas lo mas rapid      o posible tras aterrizar'],
-      ['7500','Se enviaran los bomberos y la fuerza publica a la pista']]).
+% Reglas para revisar la primera entrada del usuario, puede ser un
+% saludo o una emergencia.
+revisarEntrada(X):-
+    primerElemento(X,Z),
+    revisarSaludo(X,Z),
+    segundoValorSaludo(Y).
+revisarEntrada(X):-
+    primerElemento(X,Z),
+    revisarEmergencia(X,Z),
+    segundoValorEmergencia(Y).
+
+% -------------------Revisa si hay un saludo en la entrada del usuario-----
+
+revisarSaludo(Lista,Entrada):-
+    saludos(Entrada),!.
+revisarSaludo(Lista,Entrada):-
+    eliminar(Entrada,Lista,NuevaLista),
+    pe(NuevaLista,Z),
+    revisarSaludo(NuevaLista,Z).
+revisarSaludo([],Entrada):-
+    write('No he entendido el mensaje, intentelo de nuevo'),
+    nl,
+    primerEntrada(X),!.
+
+% ------------------Revisa si hay una key-word de emergencia en el
+% mensaje inicial-----------------------------------
+
+revisarEmergencia(Lista, Entrada):-
+    emergencia(Entrada),!.
+revisarEmergencia([],''):-
+    write('No he entendido el mensaje, intentelo de nuevo'),
+    nl,
+    primerEntrada(X),!.
+revisarEmergencia(Lista, Entrada):-
+    eliminar(Entrada,Lista,NuevaLista),
+    primerElemento(NuevaLista,Z),
+    revisarEmergencia(NuevaLista, Z).
+
+% --------------Revisa si en la entrada hay una solicitud de aterrizar o
+% despegar--------------------------------------------------
+
+revisarSolicitud(X):-
+    primerElemento(X,Z),
+    revisarAterrizaje(X,Z),
+    tercerValorSaludo(Y,1).
+revisarSolicitud(X):-
+    primerElemento(X,Z),
+    revisarDespegue(X,Z),
+    tercerValorSaludo(Y,2).
+
+% ------------Revisa si se pide un aterrizaje en la entrada del
+% usuario-----------------------------------------
+
+revisarAterrizaje(Lista, Entrada):-
+    aterrizar(Entrada),!.
+revisarAterrizaje(Listas,Entrada):-
+    eliminar(Entrada,Lista,NuevaLista),
+    pe(NuevaLista,Z),
+    revisarAterrizaje(NuevaLsita, Z).
+revisarAterrizaje([],Entrada):-
+    write('La solicitud es incorrecta, intentelo de nuevo'),
+    nl,
+    segundoValorSaludo(X),!.
+
+% -------------Revisa si se pide un despegue en la entrada del
+% usuario---------------------------
+
+revisarDespegue(Lista, Entrada):-
+    despegar(Entrada),!.
+revisarDespegue([],''):-
+    write('La solicitud es incorrecta, intentelo de nuevo'),
+    nl,
+    segundoValorSaludo(X),!.
+revisarDespegue(Lista, Entrada):-
+    eliminar(Entrada,Lista,NuevaLista),
+    primerElemento(NuevaLista,Z),
+    revisarDespegue(NuevaLista,Z).
+
+% -------------Revisa si hay una emergencia en la entrada, utiliza a
+% tipoEmergencia como auxiliar y asi encontrar el tipo de
+% emergencia------
+
+revisarEmergencia(X):-
+    primerElemento(X,Z),
+    tipoEmergencia(X,Z),
+    tercerValorEmergencia(Y).
+
+tipoEmergencia(Lista, Entrada):-
+    emergencia(Entrada),!.
+tipoEmergencia([],''):-
+    write('La emergencia es incorrecta, intentelo de nuevo'),
+    nl,
+    segundoValorEmergencia(X),!.
+tipoEmergencia(Lista, Entrada):-
+    eliminar(Entrada,Lista,NuevaList),
+    primerElemento(NuevaLista,Z),
+    tipoEmergencia(NuevaLista,Z).
+
+% --------------Revisa la identificacion del usuario con matricula y
+% avion------------------------------------------------------
+
+revisarIdentificacion(X,Y):-
+    primerElemento(X,Z),
+    revisarMatricula(X,Z,[],X,Y).
+revisarIdentificacion2(X,Y,Matricula):-
+    primerElemento(X,Z),
+    revisarAvion(X,Z,Pista,Y),
+    cuartoValorSaludo(W,Y,Matricula,Pista).
+revisarIdentificacion2(X,Y,Matricula):-
+    Y=='E',
+    primerElemento(X,Z),
+    revisarAvion(X,Z,Pista,Y),
+    asignarPista(Matricula,Pista,Hora,Y).
+
+% -----------Lee la entrada y busca los cuatro valores de la
+% matricula--------------
+
+revisarMatricula(Lista,Entrada,Matricula,X,Y):-
+    length(Matricula,4),
+    revisarIdentificacion2(X,Y,Matricula),!.
+revisarMatricula(Lista,Entrada,Matricula,X,Y):-
+    matriculas(Entrada),
+    append(Matricula,[Entrada],W),
+    eliminar(Entrada,Lista,NuevaLista),
+    primerElemento(NuevaLista,Z),
+    revisarMatricula(NuevaLista,Z,W,X,Y).
+revisarMatricula(Lista,Entrada,Matricula,X,Y):-
+    not(length(Lista,0)),
+    not(matriculas(Entrada)),
+    eliminar(Entrada,Lista,NuevaLista),
+    primerElemento(NuevaLista,Z),
+    revisarMatricula(NuevaLista,Z,Matricula,X,Y).
+revisarMatricula([],'',Matricula,X,Y):-
+    not(length(Matricula,4)),
+    write('La matricula se indico incorrectamente, intentelo de nuevo.'),
+    nl,
+    tercerValorSaludo(G,Y),!.
+
+% ------------Revisa la entrada y busca el avion escrito en el
+% mensaje----------
+
+revisarAvion(Lista,Entrada,Pista,Y):-
+    avionesDobles(Entrada),
+    eliminar(Entrada,Lista,NuevaLista),
+    primerElemento(NuevaLista, Z),
+    atom_concat(Entrada,Z,J),
+    revisarAvion(NuevaLista,J,Pista,Y).
+
+revisarAvion(Lista,Entrada,Pista,Y):-
+    avionesPequenos(Entrada),
+    Pista='P1',!.
+
+revisarAvion(Lista,Entrada,Pista,Y):-
+    avionesMedianos(Entrada),
+    Pista='P2',!.
+
+revisarAvion(Lista,Entrada,Pista,Y):-
+    avionesGrandes(Entrada),
+    Pista='P3',!.
+
+revisarAvion(Lista,Entrada,Pista,Y):-
+    not(length(Lista,0)),
+    eliminar(Entrada,Lista,NuevaLista),
+    primerElemento(NuevaLista,Z),
+    revisarAvion(NuevaLista,Z,Pista,Y).
+
+revisarAvion([],'',_,Y):-
+    write('El avion indicado es incorrecto, por favor, intentelo de nuevo.'),
+    nl,
+    tercerValorSaludo(X,Y),!.
+
+% ----------Revisa en la entrada del usuario la hora escrita, usado para
+% hora de llegada y hora de salida--------------------------------------
+
+leerHora(X,Y,Matricula,Pista):-
+    primerElemento(X,Z),
+    revisarHora(X,Z,Y,Matricula,Pista,Hora),
+    Pista=='P2',
+    quintoValorSaludo(Q,Y,Matricula,Pista,Hora).
+leerHora(X,Y,Matricula,Pista):-
+    primerElemento(X,Z),
+    revisarHora(X,Z,Y,Matricula,Pista,Hora),
+    (Pista=='P1';Pista=='P3'),
+    asignarPista(Matricula,Pista,Hora,Y).
+revisarHora(Lista,Entrada,Y,Matricula,Pista,Hora):-
+    hora(Entrada),
+    Hora=Entrada,!.
+revisarHora(Lista,Entrada,Y,Matricula,Pista,Hora):-
+    not(length(Lista,0)),
+    eliminar(Entrada,Lista,NuevaLista),
+    pe(NuevaLista,Z),
+    revisarHora(NuevaLista,Z,Y,Matricula,Pista,Hora).
+revisarHora([],Entrada,Y,Matricula,Pista,Hora):-
+    write('La hora indicada es incorrecta, intentelo de nuevo'),
+    nl,
+    cuartoValorSaludo(X,Y,Matricula,Pista).
+
+% ----------------Reglas que revisan la entrada del usuario y buscan la
+% direccion, este a oeste o oeste a este-------------------------------
+
+leerDireccion(X,Y,L,T,W):-
+    primerElemento(X,Z),
+    buscarDireccion(X,Z,Y,L,T,W).
+
+%Busca la direccion escrita en la entrada del usuario
+
+buscarDireccion(Lista,Entrada,Y,Matricula,Pista,Hora):-
+    Pista=='P1',
+    asignarPista(Matricula,'P1',Hora,Y),!.
+
+buscarDireccion(Lista,Entrada,Y,Matricula,Pista,Hora):-
+    Entrada=='este',
+    Pista=='P2',
+    asignarPista(Matricula,'P2-1',Hora,Y),!.
+
+buscarDireccion(Lista,Entrada,Y,Matricula,Pista,Hora):-
+    Entrada=='oeste',
+    Pista=='P2',
+    asignarPista(Matricula,'P2-2',Hora,Y),!.
+
+buscarDireccion(Lista,Entrada,Y,Matricula,Pista,Hora):-
+    Pista=='P3',
+    asignarPista(Matricula,'P3',Hora,Y),!.
+
+buscarDireccion(Lista,Entrada,Y,Matricula,Pista,Hora):-
     not(length(Lista,0)),
     eliminar(Entrada,Lista,NuevaLista),
     primerElemento(NuevaLista,Z),
@@ -71,7 +297,7 @@ asignarPista(Matricula,Pista,Hora,Y):-
     Pista=='P2-1',
     not(vuelosP21(_,Hora)),
     asserta(vuelosP21(Matricula,Hora)),
-    write('Asignada la pista P2-1 correctamente, a las '),
+    write('Asignada la pista P2-1 correctamente, a las'),
     write(Hora),
     nl,
     nl,
@@ -82,7 +308,7 @@ asignarPista(Matricula,Pista,Hora,Y):-
     Pista=='P2-2',
     not(vuelosP22(_,Hora)),
     asserta(vuelosP22(Matricula,Hora)),
-    write('Asignada la pista P2-2 correctamente, a las '),
+    write('Asignada la pista P2-2 correctamente, a las'),
     write(Hora),
     nl,
     nl,
@@ -93,7 +319,7 @@ asignarPista(Matricula,Pista,Hora,Y):-
     Pista=='P3',
     not(vuelosP3(_,Hora)),
     asserta(vuelosP3(Matricula,Hora)),
-    write('Asignada la pista P3 correctamente, a las '),
+    write('Asignada la pista P3 correctamente, a las'),
     write(Hora),
     nl,
     nl,

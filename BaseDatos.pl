@@ -45,7 +45,7 @@ avionesDobles('embraer').
 pista('P1').
 pista('P2-1').
 pista('P2-2').
-pista('P3').cierre('cerrar').
+pista('P3').
 
 emergencias('mayday').
 emergencias('Mayday').
