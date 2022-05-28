@@ -48,7 +48,7 @@ revisarSaludo([],Entrada):-
 % mensaje inicial-----------------------------------
 
 revisarEmergencia(Lista, Entrada):-
-    emergencia(Entrada),!.
+    emergencias(Entrada),!.
 revisarEmergencia([],''):-
     write('No he entendido el mensaje, intentelo de nuevo'),
     nl,
